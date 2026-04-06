@@ -11,11 +11,13 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
 from dotenv import load_dotenv
 import dj_database_url
 
-load_dotenv()
+load_dotenv(override=True)
+print(os.getenv('DATABASE_URL'))  # Debugging line to check if DATABASE_URL is loaded
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -77,12 +79,20 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    "default": dj_database_url.parse(
-        os.getenv("DATABASE_URL"),
-        conn_max_age=600,
-        ssl_require=True
-    )
+if 'test' in sys.argv:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': ':memory:',
+        }
+    }
+else:
+    DATABASES = {
+        "default": dj_database_url.parse(
+            os.getenv("DATABASE_URL") or "postgresql://postgres:san_loves_jev_2212@db.qzjtnphxxdrdnanydidv.supabase.co:5432/postgres",
+            conn_max_age=600,
+            ssl_require=True
+        )
     }
 
 
