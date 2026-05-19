@@ -18,3 +18,9 @@ def get_transcript(video_id: str):
     except Exception as e:
         print("Error fetching transcript:", e)
         return None
+    
+def get_full_transcript_text(transcript_data):
+    if not transcript_data:
+        return ""
+    full_text = " ".join([entry.text for entry in transcript_data])
+    return full_text

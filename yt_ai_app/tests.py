@@ -19,7 +19,8 @@ class TranscriptTests(TestCase):
         self.assertEqual(transcript_fetching.extract_video_id(url4), "dQw4w9WgXcQ")
 
     def test_get_transcript(self):
-        transcript_fetching.get_transcript("Hc0aqOEU2w8")
+        transcript_data = transcript_fetching.get_transcript("Hc0aqOEU2w8")
+        print(transcript_fetching.get_full_transcript_text(transcript_data))
         
 class ChunkingTests(TestCase):
 
@@ -43,6 +44,20 @@ class ChunkingTests(TestCase):
                 print(f"Chunk {i+1}: {chunk}")
         else:
             raise Exception("No chunks were created, check the chunking.py file.")
+        
+    def test_semantic_chunking(self):
+        url1 = "https://www.youtube.com/watch?v=Hc0aqOEU2w8"
+        
+        video_id = transcript_fetching.extract_video_id(url1)
+        if (video_id):
+            transcript_data = transcript_fetching.get_transcript(video_id)
+            full_text = transcript_fetching.get_full_transcript_text(transcript_data)
+            chunks = chunking.semantic_chunking(full_text)
+            print(f"Total semantic chunks: {len(chunks)}")
+            for i, chunk in enumerate(chunks):
+                print(f"Semantic Chunk {i+1}: {chunk}")
+        else:
+            raise Exception("Failed to extract video ID, cannot proceed with fetching transcript and semantic chunking.")
         
 class StoringTests(TestCase):
 

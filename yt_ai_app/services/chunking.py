@@ -1,7 +1,18 @@
 import tiktoken
+import re
+from nltk.tokenize import sent_tokenize
+
+enc = tiktoken.get_encoding("cl100k_base")
+
+def preprocess_transcript(transcript):
+    """
+    Preprocesses transcript text by removing >> characters and normalizing whitespace.
+    """
+    text = transcript.replace(">>", "")
+    text = re.sub(r'\s+', ' ', text)
+    return text.strip()
 
 def chunk_transcript(transcript, max_tokens=200, overlap=100):
-    enc = tiktoken.get_encoding("cl100k_base")
 
     chunks = []
     current_chunk = []
@@ -49,3 +60,34 @@ def clean_transcript(transcript):
         e for e in transcript
         if e.text.strip() and not e.text.strip().startswith("[")
     ]
+    
+def semantic_chunking(transcript, max_tokens=200):
+    sentences = sent_tokenize(transcript)
+    chunks = []
+    current_chunk = []
+    current_tokens = 0
+    
+    for sentence in sentences:
+        # Skip sentences with less than 3 words
+        if len(sentence.split()) < 3:
+            continue
+            
+        tokens = len(enc.encode(sentence))
+        
+        # If adding this sentence exceeds limit → finalize chunk
+        if current_tokens + tokens > max_tokens and current_chunk:
+            chunks.append(" ".join(current_chunk))
+            
+            # overlap: keep last sentence
+            current_chunk = [current_chunk[-1]]
+            current_tokens = len(enc.encode(current_chunk[0]))
+        
+        current_chunk.append(sentence)
+        current_tokens += tokens
+    
+    # Final chunk
+    if current_chunk:
+        chunks.append(" ".join(current_chunk))
+    
+    return chunks
+        
