@@ -94,23 +94,13 @@ def semantic_chunking_with_timestamps(transcript_data, target_tokens=100, overla
     4. Preserve chunk timestamps
     """
 
-    # -----------------------------------
-    # STEP 1: CLEAN TRANSCRIPT
-    # -----------------------------------
-
     cleaned_transcript = clean_transcript(transcript_data)
-
-    # -----------------------------------
-    # STEP 2: RECONSTRUCT FULL TEXT
-    # -----------------------------------
 
     full_text = ""
     char_mappings = []
-
     current_pos = 0
 
     for segment in cleaned_transcript:
-
         text = segment.text.strip()
 
         if not text:
@@ -122,11 +112,8 @@ def semantic_chunking_with_timestamps(transcript_data, target_tokens=100, overla
             current_pos += 1
 
         start_char = current_pos
-
         full_text += text
-
         current_pos += len(text)
-
         end_char = current_pos
 
         char_mappings.append({
@@ -136,45 +123,24 @@ def semantic_chunking_with_timestamps(transcript_data, target_tokens=100, overla
             "end_time": segment.start + segment.duration
         })
 
-    # -----------------------------------
-    # STEP 3: SENTENCE TOKENIZATION
-    # -----------------------------------
-
     sentences = sent_tokenize(full_text)
-
-    # -----------------------------------
-    # STEP 4: MAP SENTENCES TO TIMESTAMPS
-    # -----------------------------------
-
     sentence_data = []
-
     search_pos = 0
-
     for sentence in sentences:
-
         sentence = sentence.strip()
-
         if not sentence:
             continue
-
         sentence_start = full_text.find(sentence, search_pos)
-
         if sentence_start == -1:
             continue
-
         sentence_end = sentence_start + len(sentence)
-
         search_pos = sentence_end
-
         matching_segments = []
-
         for mapping in char_mappings:
-
             overlaps = not (
                 sentence_end < mapping["start_char"]
                 or sentence_start > mapping["end_char"]
             )
-
             if overlaps:
                 matching_segments.append(mapping)
 
@@ -186,10 +152,6 @@ def semantic_chunking_with_timestamps(transcript_data, target_tokens=100, overla
             "start_time": matching_segments[0]["start_time"],
             "end_time": matching_segments[-1]["end_time"]
         })
-
-    # -----------------------------------
-    # STEP 5: BUILD SEMANTIC CHUNKS
-    # -----------------------------------
 
     chunks = []
 
@@ -218,9 +180,7 @@ def semantic_chunking_with_timestamps(transcript_data, target_tokens=100, overla
 
             # overlap
             overlap = current_chunk_sentences[-overlap_sentences:]
-
             current_chunk_sentences = overlap.copy()
-
             current_token_count = sum(
                 len(s["text"].split())
                 for s in current_chunk_sentences
@@ -228,10 +188,6 @@ def semantic_chunking_with_timestamps(transcript_data, target_tokens=100, overla
 
         current_chunk_sentences.append(sentence)
         current_token_count += token_count
-
-    # -----------------------------------
-    # STEP 6: FINAL CHUNK
-    # -----------------------------------
 
     if current_chunk_sentences:
 
