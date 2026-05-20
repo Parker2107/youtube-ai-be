@@ -39,6 +39,12 @@ venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
+> **Dev Note:** After installing new packages, update `requirements.txt` with:
+>
+> ```bash
+> pip freeze > requirements.txt
+> ```
+
 ### 4. NLTK Setup
 
 Run once after installation:
@@ -114,7 +120,54 @@ The system supports two intelligent chunking approaches:
 - Preserves timestamp information for each chunk
 - Ideal for preserving temporal references in the transcript
 
-#### Semantic Chunking (`semantic_chunking`)
+#### Semantic Chunking (`semantic_chunking_with_timestamps`)
+
+The new semantic chunking algorithm is a multi-stage pipeline that preserves timestamps while creating semantically coherent chunks:
+
+##### Stage 1: Clean Transcript
+
+- Removes speaker indicators (`>>` characters)
+- Normalizes whitespace and filters non-content markers (e.g., `[Music]`)
+- Processes transcript segment by segment
+
+##### Stage 2: Reconstruct Full Text with Character Mappings
+
+- Rebuilds complete transcript text from cleaned segments
+- Maintains character position mappings to original segment timestamps
+- Enables precise timestamp tracking through text reconstruction
+
+##### Stage 3: Sentence Tokenization
+
+- Splits full text into sentences using NLTK
+- Preserves sentence order and boundaries for semantic coherence
+
+##### Stage 4: Timestamp Mapping
+
+- Maps each sentence back to its original video timestamps
+- Uses character position mappings to determine which segments each sentence overlaps
+- Assigns accurate start/end times to every sentence
+
+##### Stage 5: Token-Based Chunking with Overlap
+
+- Groups sentences into chunks based on word count (default: 100 tokens)
+- Maintains configurable sentence overlap between chunks (default: 2 sentences)
+- Ensures semantic continuity across chunk boundaries
+
+##### Key Advantages
+
+- Preserves accurate timestamps from original transcript
+- Maintains semantic boundaries (complete sentences, not arbitrary splits)
+- Intelligent overlap reduces context loss between chunks
+- Handles complex transcripts with proper character-to-timestamp mapping
+
+#### Text-Only Semantic Chunking (`semantic_chunking`)
+
+For plain text transcripts without timestamp data:
+
+- Tokenizes text into sentences
+- Groups sentences by token count
+- Maintains single-sentence overlap
+- Returns text-only chunks without timestamps
 
 - Splits transcripts into **sentence-aware chunks** using NLTK
 - Respects semantic boundaries (complete sentences)

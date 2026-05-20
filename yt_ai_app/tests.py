@@ -51,8 +51,7 @@ class ChunkingTests(TestCase):
         video_id = transcript_fetching.extract_video_id(url1)
         if (video_id):
             transcript_data = transcript_fetching.get_transcript(video_id)
-            full_text = transcript_fetching.get_full_transcript_text(transcript_data)
-            chunks = chunking.semantic_chunking(full_text)
+            chunks = chunking.semantic_chunking_with_timestamps(transcript_data)
             print(f"Total semantic chunks: {len(chunks)}")
             for i, chunk in enumerate(chunks):
                 print(f"Semantic Chunk {i+1}: {chunk}")
@@ -79,6 +78,25 @@ class StoringTests(TestCase):
             print("Stored successfully!")
         else:
             raise Exception("Failed to extract video ID, cannot proceed with fetching transcript and storing chunks.")
+
+    def test_store_semantic_chunks(self):
+        url = "https://www.youtube.com/watch?v=Hc0aqOEU2w8"
+
+        video_id = transcript_fetching.extract_video_id(url)
+        if (video_id):
+            transcript_data = transcript_fetching.get_transcript(video_id)
+            semantic_chunks = chunking.semantic_chunking_with_timestamps(transcript_data)
+
+            conn = db.get_connection()
+
+            for chunk in semantic_chunks:
+                embedding_data = embedding.get_fake_embedding()
+                embedding_small = embedding.create_embedding_huggingface(chunk["text"])
+                db.store_chunk(conn, video_id, chunk, embedding_data, embedding_small)
+
+            print(f"Stored {len(semantic_chunks)} semantic chunks successfully!")
+        else:
+            raise Exception("Failed to extract video ID, cannot proceed with fetching transcript and storing semantic chunks.")
         
 class RetrievalTests(TestCase):
 
