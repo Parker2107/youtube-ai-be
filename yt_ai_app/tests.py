@@ -101,7 +101,7 @@ class StoringTests(TestCase):
 class RetrievalTests(TestCase):
 
     def test_retrieve_chunks(self):
-        query = "What is the video about?"
+        query = "What are the best benefits of the bluey phone?"
         results = retrieval.retrieve_chunks(query=query, video_id="Hc0aqOEU2w8", top_k=5)
 
         if results:

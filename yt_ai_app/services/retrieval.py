@@ -1,5 +1,7 @@
+from yt_ai_app.models import RetrievalChunk
 from yt_ai_app.services import embedding
 from yt_ai_app.services import db
+
 
 def retrieve_chunks(query, video_id, top_k=5):
 
@@ -25,4 +27,15 @@ def retrieve_chunks(query, video_id, top_k=5):
 
         results = cursor.fetchall()
 
-    return results
+    # Convert results to RetrievalChunk objects
+    chunks = [
+        RetrievalChunk(
+            text=row[0],
+            start_time=row[1],
+            end_time=row[2],
+            distance=float(row[3])
+        )
+        for row in results
+    ]
+
+    return chunks
