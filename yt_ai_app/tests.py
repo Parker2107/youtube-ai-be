@@ -1,9 +1,10 @@
 from django.test import TestCase
-from yt_ai_app.services import retrieval, transcript_fetching
-from yt_ai_app.services import chunking
-from yt_ai_app.services import embedding
+from yt_ai_app.services.v1 import retrieval
+from yt_ai_app.services.v1 import chunking
+from yt_ai_app.services.v1 import embedding
 from yt_ai_app.services import db
-from yt_ai_app.services import retrieval
+from yt_ai_app.services.v1 import retrieval
+from yt_ai_app.services.v1 import transcript_fetching
 
 class TranscriptTests(TestCase):
 

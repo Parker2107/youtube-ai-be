@@ -1,5 +1,5 @@
 from yt_ai_app.models import RetrievalChunk
-from yt_ai_app.services import embedding
+from yt_ai_app.services.v1 import embedding
 from yt_ai_app.services import db
 
 
