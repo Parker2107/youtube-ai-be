@@ -1,7 +1,9 @@
 import re
+import os
+from dotenv import load_dotenv
+import requests
 from nltk.tokenize import sent_tokenize
 from youtube_transcript_api import YouTubeTranscriptApi
-
 
 def extract_video_id(url: str):
     if "watch?v=" in url:
@@ -175,3 +177,35 @@ def semantic_chunking_with_timestamps(transcript_data, target_tokens=100, overla
         })
 
     return chunks
+
+def extract_metadata(url: str):
+    """
+    Extracts metadata from a YouTube URL.
+    Returns a dictionary with video_id, title, and description.
+    """
+    load_dotenv()
+    YT_API_KEY = os.getenv("YT_API_KEY")
+    print(f"YT_API_KEY: {YT_API_KEY}")  # Debugging line to check if the API key is loaded correctly
+    video_id = extract_video_id(url)
+    if not video_id:
+        raise ValueError("Invalid YouTube URL")
+    
+    response = requests.get(
+        "https://www.googleapis.com/youtube/v3/videos",
+        params={
+            "part":"snippet,contentDetails,statistics",
+            "id": video_id,
+            "key": YT_API_KEY
+        }
+    )
+    print(response.json())
+    return ({
+        "video_id": video_id,
+        "title": response.json()["items"][0]["snippet"]["title"],
+        "description": response.json()["items"][0]["snippet"]["description"],
+        "image_url": response.json()["items"][0]["snippet"]["thumbnails"]["high"]["url"], #For future, we can make it [standard][url] or [maxres][url] based on availability and space
+        "category_id": response.json()["items"][0]["snippet"]["categoryId"],
+        "tags": response.json()["items"][0]["snippet"].get("tags", [])
+    })
+    
+# extract_metadata("https://www.youtube.com/watch?v=Hc0aqOEU2w8")

@@ -1,3 +1,4 @@
+from packaging import tags
 import psycopg2
 import os
 from dotenv import load_dotenv
@@ -24,4 +25,58 @@ def store_chunk(conn, video_id, chunk, embedding, embedding_small):
                 embedding_small
             )
         )
+    conn.commit()
+    
+def store_video(
+    conn,
+    video_id,
+    title,
+    description,
+    image_url,
+    category_id,
+    tags
+):
+    with conn.cursor() as cursor:
+        cursor.execute(
+            """
+            INSERT INTO videos (
+                id,
+                title,
+                description,
+                image_url,
+                category_id
+            )
+            VALUES (%s, %s, %s, %s, %s)
+            ON CONFLICT (id) DO NOTHING
+            """,
+            (
+                video_id,
+                title,
+                description,
+                image_url,
+                category_id,
+            ),
+        )
+        for tag in tags:
+            cursor.execute(
+                """
+                INSERT INTO tags (name)
+                VALUES (%s)
+                ON CONFLICT (name) DO NOTHING
+                """,
+                (tag,)
+            )
+        for tag in tags:
+            cursor.execute(
+                """
+                INSERT INTO video_tags (video_id, tag_id)
+                SELECT %s, id
+                FROM tags
+                WHERE name = %s
+                ON CONFLICT DO NOTHING
+                """,
+                (video_id, tag)
+            )
+            
+
     conn.commit()
