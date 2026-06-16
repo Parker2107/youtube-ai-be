@@ -58,7 +58,7 @@ def clean_transcript(transcript):
     return cleaned
 
 
-def semantic_chunking_with_timestamps(transcript_data, target_tokens=100, overlap_sentences=2):
+def semantic_chunking_with_timestamps(transcript_data, target_tokens=200, overlap_sentences=2):
     """
     Builds semantic chunks while preserving timestamps.
 
