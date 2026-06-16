@@ -3,6 +3,7 @@ from dotenv import load_dotenv
 from yt_ai_app.services.v1 import embedding
 from yt_ai_app.services.v2 import ingestion
 from yt_ai_app.services import db
+from yt_ai_app.services.v2 import ner
 
 class IngestionTests(TestCase):
     def test_ingestion(self):
@@ -27,6 +28,7 @@ class IngestionTests(TestCase):
                 embedding_data = embedding.get_fake_embedding()
                 embedding_small = embedding.create_embedding_huggingface(chunk["text"])
                 db.store_chunk(conn, video_id, chunk, embedding_data, embedding_small)
-        
+
             print(f"Total semantic chunks: {len(chunks)}")
-            
+            json = ner.create_relations(chunks[0]["text"])
+            db.store_ner(conn, video_id, 0, json)

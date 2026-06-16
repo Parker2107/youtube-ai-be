@@ -1,3 +1,5 @@
+import json
+
 from packaging import tags
 import psycopg2
 import os
@@ -77,6 +79,23 @@ def store_video(
                 """,
                 (video_id, tag)
             )
-            
+    conn.commit()
 
+def store_ner(conn, video_id, chunk_id, result):
+    with conn.cursor() as cursor:
+        cursor.execute(
+            """
+            INSERT INTO extraction_results (
+                video_id,
+                chunk_id,
+                extraction_json
+            )
+            VALUES (%s, %s, %s)
+            """,
+            (
+                video_id,
+                chunk_id,
+                json.dumps(result)
+            )
+        )
     conn.commit()
