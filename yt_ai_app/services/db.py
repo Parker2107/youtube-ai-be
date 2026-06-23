@@ -66,7 +66,7 @@ def store_video(
                 VALUES (%s)
                 ON CONFLICT (name) DO NOTHING
                 """,
-                (tag,)
+                (tag)
             )
         for tag in tags:
             cursor.execute(

@@ -9,11 +9,13 @@ dummydata = [
   "entities": [
     {
       "name": "Transformer",
-      "type": "CONCEPT"
+      "type": "CONCEPT",
+      "time": "00:00:05"
     },
     {
       "name": "Attention Mechanism",
-      "type": "CONCEPT"
+      "type": "CONCEPT",
+      "time": "00:00:10"
     },
     {
       "name": "RNN",
